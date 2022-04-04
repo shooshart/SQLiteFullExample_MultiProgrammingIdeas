@@ -5,8 +5,9 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import android.widget.Toast
-import java.lang.Exception
+import kotlin.Exception
 
 class DBHandler(context: Context, name: String?, factory: SQLiteDatabase.CursorFactory?, version: Int):
         SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION){
@@ -41,12 +42,14 @@ class DBHandler(context: Context, name: String?, factory: SQLiteDatabase.CursorF
 
         if (cursor.count == 0)
             Toast.makeText(mCtx, "No Records Found", Toast.LENGTH_SHORT).show() else {
-            while (cursor.moveToNext()) {
+            cursor.moveToFirst()
+            while (!cursor.isAfterLast()) {
                 val customer = Customer()
                 customer.customerID = cursor.getInt(cursor.getColumnIndex(COLUMN_CUSTOMERID))
                 customer.customerName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMERNAME))
                 customer.maxCredit = cursor.getDouble(cursor.getColumnIndex(COLUMN_MAXCREDIT))
                 customers.add(customer)
+                cursor.moveToNext()
             }
             Toast.makeText(mCtx, "${cursor.count.toString()} Records Found", Toast.LENGTH_SHORT)
                 .show()
@@ -63,10 +66,28 @@ class DBHandler(context: Context, name: String?, factory: SQLiteDatabase.CursorF
         val db: SQLiteDatabase = this.writableDatabase
         try {
             db.insert(CUSTOMER_TABLE_NAME, null, values)
+//Can use this line
+//          db.rawQuery("Insert Into $CUSTOMER_TABLE_NAME ($COLUMN_CUSTOMERNAME, $COLUMN_MAXCREDIT) Values(?, ?)")
             Toast.makeText(mCtx, "Customer Added", Toast.LENGTH_SHORT).show()
         } catch (e: Exception){
             Toast.makeText(mCtx, e.message, Toast.LENGTH_SHORT).show()
         }
         db.close()
     }
+
+    fun deleteCustomer(customerID: Int): Boolean{
+        val qry = "Delete From $CUSTOMER_TABLE_NAME where $COLUMN_CUSTOMERID = $customerID"
+        val db: SQLiteDatabase = this.writableDatabase
+        var result: Boolean = false
+        try {
+//            val cursor: Int = db.delete(CUSTOMER_TABLE_NAME, "$COLUMN_CUSTOMERID = ?", arrayOf(customerID.toString())))
+            val cursor: Unit = db.execSQL(qry)
+            result = true
+        } catch (e: Exception){
+            Log.e(ContentValues.TAG, "Error Deleting")
+        }
+        db.close()
+        return result
+    }
+
 }
