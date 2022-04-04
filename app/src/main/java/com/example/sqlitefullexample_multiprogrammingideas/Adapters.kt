@@ -6,8 +6,11 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_add_customer.view.*
+import kotlinx.android.synthetic.main.lo_customer_update.view.*
 import kotlinx.android.synthetic.main.lo_customers.view.*
 
 class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): RecyclerView.Adapter<CustomerAdapter.ViewHolder>(){
@@ -54,6 +57,39 @@ class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): Recycl
                 .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which -> })
                 .setIcon(R.drawable.ic_baseline_warning_24)
                 .show()
+        }
+
+        p0.btnUpdate.setOnClickListener{
+            val inflater = LayoutInflater.from(mCtx)
+            val view = inflater.inflate(R.layout.lo_customer_update, null)
+
+            val txtCusName: TextView = view.findViewById(R.id.editUpCustomerName)
+            val txtMaxCredit: TextView = view.findViewById(R.id.editUpMaxCredit)
+
+            txtCusName.text = customer.customerName
+            txtMaxCredit.text = customer.maxCredit.toString()
+
+            val builder: AlertDialog.Builder = AlertDialog.Builder(mCtx)
+                .setTitle("Update Customer Info.")
+                .setView(view)
+                .setPositiveButton("Update", DialogInterface.OnClickListener { dialog, witch ->
+                    val isUpdate: Boolean = MainActivity.dbHandler.updateCustomer(
+                        customer.customerID.toString(),
+                        view.editUpCustomerName.text.toString(),
+                        view.editUpMaxCredit.text.toString())
+                    if (isUpdate == true){
+                        customers[p1].customerName = view.editUpCustomerName.text.toString()
+                        customers[p1].maxCredit = view.editUpMaxCredit.text.toString().toDouble()
+                        notifyDataSetChanged()
+                        Toast.makeText(mCtx, "Update Successful.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(mCtx, "Error Updating.", Toast.LENGTH_SHORT).show()
+                    }
+                }).setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, which ->
+
+                })
+            val alert = builder.create()
+            alert.show()
         }
     }
 }
