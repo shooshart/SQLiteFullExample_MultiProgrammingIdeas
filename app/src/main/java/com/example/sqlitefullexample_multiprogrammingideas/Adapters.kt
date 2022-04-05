@@ -20,6 +20,7 @@ class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): Recycl
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val txtCustomerName = itemView.txtCustomerName
         val txtMaxCredit = itemView.txtMaxCredit
+        val txtPhoneNumber = itemView.txtPhoneNo
         val btnUpdate = itemView.btnUpdate
         val btnDelete = itemView.btnDelete
     }
@@ -37,9 +38,10 @@ class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): Recycl
         val customer: Customer = customers[p1]
         p0.txtCustomerName.text = customer.customerName
         p0.txtMaxCredit.text = customer.maxCredit.toString()
+        p0.txtPhoneNumber.text = customer.phoneNumber
 
         p0.btnDelete.setOnClickListener{
-            val customerName: String = customer.customerName
+            val customerName: String? = customer.customerName
 
             var alertDialog: AlertDialog = AlertDialog.Builder(mCtx)
                 .setTitle("Warning")
@@ -65,9 +67,11 @@ class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): Recycl
 
             val txtCusName: TextView = view.findViewById(R.id.editUpCustomerName)
             val txtMaxCredit: TextView = view.findViewById(R.id.editUpMaxCredit)
+            val txtPhoneNumber: TextView = view.findViewById(R.id.editUpPhoneNumber)
 
             txtCusName.text = customer.customerName
             txtMaxCredit.text = customer.maxCredit.toString()
+            txtPhoneNumber.text = customer.phoneNumber.toString()
 
             val builder: AlertDialog.Builder = AlertDialog.Builder(mCtx)
                 .setTitle("Update Customer Info.")
@@ -76,10 +80,12 @@ class CustomerAdapter(mCtx: Context, val customers: ArrayList<Customer>): Recycl
                     val isUpdate: Boolean = MainActivity.dbHandler.updateCustomer(
                         customer.customerID.toString(),
                         view.editUpCustomerName.text.toString(),
-                        view.editUpMaxCredit.text.toString())
+                        view.editUpMaxCredit.text.toString(),
+                        view.editUpPhoneNumber.text.toString())
                     if (isUpdate == true){
                         customers[p1].customerName = view.editUpCustomerName.text.toString()
                         customers[p1].maxCredit = view.editUpMaxCredit.text.toString().toDouble()
+                        customers[p1].phoneNumber = view.editUpPhoneNumber.text.toString()
                         notifyDataSetChanged()
                         Toast.makeText(mCtx, "Update Successful.", Toast.LENGTH_SHORT).show()
                     } else {
